@@ -1,0 +1,48 @@
+{% extends "meteo/base.html" %}
+{% load static %}
+
+{% block title %}График погоды{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="{% static 'meteo/scripts/tab-controller.js' %}"></script>
+    <script type="text/javascript">
+        function showDefaultTab() {
+            document.getElementById("defaultOpen").click();
+        }
+        window.onload = showDefaultTab;
+    </script>
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <div class="tab">
+      <button id="defaultOpen" class="tablinks" onclick="openChart(event, 'temperature')">Температура</button>
+      <button class="tablinks" onclick="openChart(event, 'pressure')">Давление</button>
+      <button class="tablinks" onclick="openChart(event, 'humidity')">Влажность</button>
+    </div>
+
+    <!-- Don't forget the "|safe"! -->
+    <div id="temperature" class="tabcontent">
+       <embed type="image/svg+xml" src= {{ temperature_chart|safe }} height="600" width="800" />
+    </div>
+
+
+    <div id="pressure" class="tabcontent">
+      <embed type="image/svg+xml" src= {{ pressure_chart|safe }} height="600" width="800" />
+    </div>
+
+    <div id="humidity" class="tabcontent">
+      <embed type="image/svg+xml" src= {{ humidity_chart|safe }} height="600" width="800" />
+    </div>
+</div>
+
+<div class="data">
+    <table>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

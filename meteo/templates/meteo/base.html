@@ -1,0 +1,21 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My amazing site{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'meteo/css/style.css' %}" />
+    <link rel="shortcut icon" type="image/png" href="{% static 'meteo/images/favicon.ico' %}"/>
+    {% block scripts %}{% endblock %}
+</head>
+<body>
+
+<div id="header">Шапка сайта</div>
+<div id="content">
+    {% block content %}{% endblock %}
+</div>
+<div id="footer">Футер</div>
+
+</body>
+</html>

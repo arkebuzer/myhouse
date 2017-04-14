@@ -29,11 +29,16 @@ div.tab {
     margin-top: 20px;
 }
 
+.charts {
+    width: 60%;
+}
+
 .data{
-    background-color: #ddd;
+    /* background-color: #ddd; */
     float: right;
-    width: 20%;
+    width: 33%;
     margin-right: 5%;
+    display:table;
 }
 
 /* Style the buttons inside the tab */
@@ -64,4 +69,13 @@ div.tab button.active {
     /* border: 1px solid #ccc; */
     border: none;
     height: auto;
+}
+
+#meteo-table {
+    background-color: #ddd;
+    text-align: center;
+}
+
+table, th, td {
+    border: 1px solid black;
 }

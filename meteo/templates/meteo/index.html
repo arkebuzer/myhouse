@@ -15,7 +15,7 @@
 
 {% block content %}
 
-<div>
+<div class="charts">
     <div class="tab">
       <button id="defaultOpen" class="tablinks" onclick="openChart(event, 'temperature')">Температура</button>
       <button class="tablinks" onclick="openChart(event, 'pressure')">Давление</button>
@@ -24,25 +24,42 @@
 
     <!-- Don't forget the "|safe"! -->
     <div id="temperature" class="tabcontent">
-       <embed type="image/svg+xml" src= {{ temperature_chart|safe }} height="600" width="800" />
+       <embed type="image/svg+xml" src= {{ temperature_chart|safe }} height="525" width="700" />
     </div>
 
 
     <div id="pressure" class="tabcontent">
-      <embed type="image/svg+xml" src= {{ pressure_chart|safe }} height="600" width="800" />
+      <embed type="image/svg+xml" src= {{ pressure_chart|safe }} height="525" width="700" />
     </div>
 
     <div id="humidity" class="tabcontent">
-      <embed type="image/svg+xml" src= {{ humidity_chart|safe }} height="600" width="800" />
+      <embed type="image/svg+xml" src= {{ humidity_chart|safe }} height="525" width="700" />
     </div>
 </div>
 
 <div class="data">
-    <table>
-        <tr>
-            <td>1</td>
-            <td>2</td>
-        </tr>
+    <table id="meteo-table">
+        <tbody>
+            <tr>
+                <th colspan="3" class="mainheader">Текущие показатели</th>
+            </tr>
+            <tr>
+                <th>Температура</th>
+                <th>Давление</th>
+                <th>Влажность</th>
+            </tr>
+            <tr>
+                {% if cur_meteo_data %}
+                    <td>{{ cur_meteo_data.temperature }} ℃</td>
+                    <td>{{ cur_meteo_data.pressure }} мм рт. ст.</td>
+                    <td>{{ cur_meteo_data.humidity }} %</td>
+                {% else %}
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                {% endif %}
+            </tr>
+        </tbody>
     </table>
 </div>
 {% endblock %}

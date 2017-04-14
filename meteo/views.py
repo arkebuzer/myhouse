@@ -1,14 +1,17 @@
+from datetime import timedelta
+
 import pygal
 from django.shortcuts import render
 
-# from .models import Meteo
+from django.utils import timezone
 from pygal.style import Style
 
 from meteo.models import Meteo
 
 
 def index(request):
-    meteo_data = Meteo.objects.order_by('processed_dttm')
+    day_ago_dt = timezone.localtime(timezone.now()).replace() - timedelta(days=1)
+    meteo_data = Meteo.objects.filter(processed_dttm__gte=day_ago_dt).order_by('processed_dttm')
 
     temperature_chart = pygal.Line(range=(15, 35), x_label_rotation=30)
     temperature_chart.x_labels = [d.processed_dttm.strftime('%H-%M-%S') for d in meteo_data]
@@ -27,9 +30,15 @@ def index(request):
     humidity_chart.add('Влажность', [d.humidity for d in meteo_data])
     humidity_chart = humidity_chart.render_data_uri()
 
+    try:
+        cur_meteo_data = Meteo.objects.order_by("-id")[0]
+    except IndexError:
+        cur_meteo_data = None
+
     context = {
         'temperature_chart': temperature_chart,
         'pressure_chart': pressure_chart,
         'humidity_chart': humidity_chart,
+        'cur_meteo_data': cur_meteo_data,
     }
     return render(request, 'meteo/index.html', context)

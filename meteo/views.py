@@ -14,15 +14,17 @@ from pygal.style import Style
 
 
 def index(request):
-    day_ago_dt = timezone.localtime(timezone.now()).replace() - timedelta(days=1)
+    day_ago_dt = timezone.localtime(timezone.now()) - timedelta(days=1)
+    cur_hour = timezone.localtime(timezone.now()).hour
 
     # Last 24 hour data grouped by hour.
     meteo_data = Meteo.objects.filter(processed_dttm__gte=day_ago_dt) \
+        .exclude(processed_dttm__hour=cur_hour) \
         .values(date_hour=TruncHour('processed_dttm')) \
         .annotate(temperature=Round(Avg('temperature'), 2),
                   pressure=Round(Avg('pressure'), 2),
                   humidity=Round(Avg('humidity'), 0)) \
-        .order_by('-date_hour')
+        .order_by('date_hour')
 
     temperature_chart = pygal.Line(range=(15, 35), x_label_rotation=30)
     temperature_chart.x_labels = [d['date_hour'].strftime('%Y-%m-%d - %H:00') for d in meteo_data]

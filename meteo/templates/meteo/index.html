@@ -17,6 +17,12 @@
 
 <div class="charts">
     <div class="tab">
+        <button class="tablinks" onclick="location.href='{% url 'meteo:hour' 'hour' %}';">Данные за час</button>
+        <button class="tablinks" onclick="location.href='{% url 'meteo:day' 'day' %}';">Данные за день</button>
+        <button class="tablinks" onclick="location.href='{% url 'meteo:month' 'month' %}';">Данные за месяц</button>
+    </div>
+    <br/>
+    <div class="tab">
       <button id="defaultOpen" class="tablinks" onclick="openChart(event, 'temperature')">Температура</button>
       <button class="tablinks" onclick="openChart(event, 'pressure')">Давление</button>
       <button class="tablinks" onclick="openChart(event, 'humidity')">Влажность</button>

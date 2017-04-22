@@ -25,13 +25,13 @@ def index(request, time_delta='day'):
 
     brown = Style(colors=('saddleBrown',))
     pressure_chart = pygal.Line(range=(730, 760), x_label_rotation=45, style=brown)
-    pressure_chart.x_labels = [d['time_point'].strftime('%Y-%m-%d - %H:00') for d in meteo_data]
+    pressure_chart.x_labels = [d['time_point'].strftime(time_format) for d in meteo_data]
     pressure_chart.add('Давление', [d['pressure'] for d in meteo_data])
     pressure_chart = pressure_chart.render_data_uri()
 
     blue = Style(colors=('blue',))
     humidity_chart = pygal.Line(range=(20, 90), x_label_rotation=45, style=blue)
-    humidity_chart.x_labels = [d['time_point'].strftime('%Y-%m-%d - %H:00') for d in meteo_data]
+    humidity_chart.x_labels = [d['time_point'].strftime(time_format) for d in meteo_data]
     humidity_chart.add('Влажность', [d['humidity'] for d in meteo_data])
     humidity_chart = humidity_chart.render_data_uri()
 

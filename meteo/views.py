@@ -1,39 +1,42 @@
-from enum import Enum
-
-from django.shortcuts import render
-
-from django.db.models import Avg
-from utils.dbfunctions import Round
-
-from django.db.models.functions import TruncHour, TruncMinute
-from django.utils import timezone
 from datetime import timedelta
 
-from meteo.models import Meteo
-
 import pygal
+from django.db.models import Avg
+from django.db.models.functions import TruncHour, TruncMinute
+from django.shortcuts import render
+from django.utils import timezone
 from pygal.style import Style
+
+from meteo.models import Meteo
+from utils.dbfunctions import Round
+from utils.enums import TimePointEnum
 
 
 def index(request, time_delta='day'):
     meteo_data, time_format = get_meteo_data(time_delta)
 
-    temperature_chart = pygal.Line(range=(15, 35), x_label_rotation=45)
-    temperature_chart.x_labels = [d['time_point'].strftime(time_format) for d in meteo_data]
-    temperature_chart.add('Температура', [d['temperature'] for d in meteo_data])
-    temperature_chart = temperature_chart.render_data_uri()
+    temperature_chart = get_chart_data_uri(meteo_data,
+                                           time_format,
+                                           data_key='temperature',
+                                           data_label='Температура',
+                                           y_range=(15, 35),
+                                           x_label_key='time_point')
 
-    brown = Style(colors=('saddleBrown',))
-    pressure_chart = pygal.Line(range=(730, 760), x_label_rotation=45, style=brown)
-    pressure_chart.x_labels = [d['time_point'].strftime(time_format) for d in meteo_data]
-    pressure_chart.add('Давление', [d['pressure'] for d in meteo_data])
-    pressure_chart = pressure_chart.render_data_uri()
+    pressure_chart = get_chart_data_uri(meteo_data,
+                                        time_format,
+                                        data_key='pressure',
+                                        data_label='Давление',
+                                        y_range=(730, 760),
+                                        x_label_key='time_point',
+                                        color='saddleBrown')
 
-    blue = Style(colors=('blue',))
-    humidity_chart = pygal.Line(range=(20, 90), x_label_rotation=45, style=blue)
-    humidity_chart.x_labels = [d['time_point'].strftime(time_format) for d in meteo_data]
-    humidity_chart.add('Влажность', [d['humidity'] for d in meteo_data])
-    humidity_chart = humidity_chart.render_data_uri()
+    humidity_chart = get_chart_data_uri(meteo_data,
+                                        time_format,
+                                        data_key='humidity',
+                                        data_label='Влажность',
+                                        y_range=(20, 90),
+                                        x_label_key='time_point',
+                                        color='blue')
 
     try:
         cur_meteo_data = Meteo.objects.order_by("-id")[0]
@@ -47,19 +50,6 @@ def index(request, time_delta='day'):
         'cur_meteo_data': cur_meteo_data,
     }
     return render(request, 'meteo/index.html', context)
-
-
-class TimePointEnum(Enum):
-    MONTH = 'MONTH'
-    DAY = 'DAY'
-    HOUR = 'HOUR'
-
-    def equals_to_str(self, string):
-        """Case insensitive equality test."""
-        return self.value == string.upper()
-
-    def __str__(self):
-        return self.value
 
 
 def get_meteo_data(time_delta):
@@ -115,3 +105,18 @@ def get_meteo_data(time_delta):
         raise ValueError('Invalid time interval passed!')
 
     return meteo_data, time_format
+
+
+def get_chart_data_uri(meteo_data,
+                       time_format,
+                       data_key,
+                       data_label,
+                       y_range,
+                       x_label_key,
+                       x_label_rotation=45,
+                       color='red'):
+    color_style = Style(colors=(color,))
+    chart = pygal.Line(range=y_range, x_label_rotation=x_label_rotation, style=color_style)
+    chart.x_labels = [d[x_label_key].strftime(time_format) for d in meteo_data]
+    chart.add(data_label, [d[data_key] for d in meteo_data])
+    return chart.render_data_uri()

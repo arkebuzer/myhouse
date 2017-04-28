@@ -1,10 +1,11 @@
 from datetime import timedelta
 
-import pygal
 from django.db.models import Avg
-from django.db.models.functions import TruncHour, TruncMinute
+from django.db.models.functions import TruncHour, TruncMinute, TruncDay
 from django.shortcuts import render
 from django.utils import timezone
+
+import pygal
 from pygal.style import Style
 
 from meteo.models import Meteo
@@ -63,12 +64,12 @@ def get_meteo_data(time_delta):
         )
 
         cur_sub_point = timezone.localtime(timezone.now()).day
-        time_format = '%Y-%m-%d'
+        time_format = '%d.%m.%Y'
 
         # Last month data grouped by day.
         meteo_data = Meteo.objects.filter(processed_dttm__gte=point_ago) \
             .exclude(processed_dttm__day=cur_sub_point) \
-            .values(time_point=TruncHour('processed_dttm')) \
+            .values(time_point=TruncDay('processed_dttm')) \
             .annotate(temperature=Round(Avg('temperature'), 2),
                       pressure=Round(Avg('pressure'), 2),
                       humidity=Round(Avg('humidity'), 0)) \
@@ -77,7 +78,7 @@ def get_meteo_data(time_delta):
     elif TimePointEnum.DAY.equals_to_str(time_delta):
         point_ago = timezone.localtime(timezone.now()) - timedelta(days=1)
         cur_sub_point = timezone.localtime(timezone.now()).hour
-        time_format = '%m-%d - %H:00'
+        time_format = '%d.%m - %H:00'
 
         # Last day data grouped by hour.
         meteo_data = Meteo.objects.filter(processed_dttm__gte=point_ago) \
@@ -115,8 +116,17 @@ def get_chart_data_uri(meteo_data,
                        x_label_key,
                        x_label_rotation=45,
                        color='red'):
-    color_style = Style(colors=(color,))
-    chart = pygal.Line(range=y_range, x_label_rotation=x_label_rotation, style=color_style)
+    style = Style(colors=(color,),
+                  tooltip_font_size=18,
+                  label_font_size=14,
+                  major_label_font_size=14,
+                  legend_font_size=16)
+
+    chart = pygal.Line(range=y_range,
+                       x_label_rotation=x_label_rotation,
+                       style=style,
+                       x_labels_major_every=2,
+                       show_minor_x_labels=False)
     chart.x_labels = [d[x_label_key].strftime(time_format) for d in meteo_data]
     chart.add(data_label, [d[data_key] for d in meteo_data])
     return chart.render_data_uri()

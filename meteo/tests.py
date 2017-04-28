@@ -1,5 +1,4 @@
 from django.test import TestCase
-# from django.urls import reverse
 
 from meteo.models import Meteo
 from utils.enums import TimePointEnum
